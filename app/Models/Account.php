@@ -3,10 +3,12 @@
 namespace App\Models;
 
 use App\Attendize\Utils;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Account extends MyBaseModel
 {
+    use HasFactory;
     use SoftDeletes;
 
     /**
