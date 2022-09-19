@@ -3,6 +3,7 @@
 namespace Database\Seeders;
 
 use Illuminate\Database\Seeder;
+use Eloquent;
 
 class DatabaseSeeder extends Seeder
 {
