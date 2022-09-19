@@ -3,17 +3,19 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Collection;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class EventAccessCodes extends MyBaseModel
 {
+    use HasFactory;
     use SoftDeletes;
 
     /**
-     * @param integer $event_id
-     * @param string $accessCode
+     * @param  int  $event_id
+     * @param  string  $accessCode
      * @return void
      */
     public static function logUsage($event_id, $accessCode)
@@ -61,7 +63,7 @@ class EventAccessCodes extends MyBaseModel
     /**
      * @return BelongsToMany
      */
-    function tickets()
+    public function tickets()
     {
         return $this->belongsToMany(
             Ticket::class,
