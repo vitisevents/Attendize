@@ -1,4 +1,6 @@
-<?php namespace App\Http\Controllers;
+<?php
+
+namespace App\Http\Controllers;
 
 use App\Cancellation\OrderCancellation;
 use App\Cancellation\OrderRefundException;
@@ -8,23 +10,21 @@ use App\Models\Attendee;
 use App\Models\Event;
 use App\Models\Order;
 use App\Services\Order as OrderService;
-use DB;
-use Excel;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Log;
 use Mail;
 use Session;
 use Validator;
-use Illuminate\Support\Facades\Lang;
 
 class EventOrdersController extends MyBaseController
 {
     /**
      * Show event orders page
      *
-     * @param Request $request
-     * @param string $event_id
+     * @param  Request  $request
+     * @param  string  $event_id
      * @return mixed
      */
     public function showOrders(Request $request, $event_id = '')
@@ -48,10 +48,10 @@ class EventOrdersController extends MyBaseController
 
             $orders = $event->orders()
                 ->where(function ($query) use ($searchQuery) {
-                    $query->where('order_reference', 'like', $searchQuery . '%')
-                        ->orWhere('first_name', 'like', $searchQuery . '%')
-                        ->orWhere('email', 'like', $searchQuery . '%')
-                        ->orWhere('last_name', 'like', $searchQuery . '%');
+                    $query->where('order_reference', 'like', $searchQuery.'%')
+                        ->orWhere('first_name', 'like', $searchQuery.'%')
+                        ->orWhere('email', 'like', $searchQuery.'%')
+                        ->orWhere('last_name', 'like', $searchQuery.'%');
                 })
                 ->orderBy($sort_by, $sort_order)
                 ->paginate();
@@ -60,11 +60,11 @@ class EventOrdersController extends MyBaseController
         }
 
         $data = [
-            'orders'     => $orders,
-            'event'      => $event,
-            'sort_by'    => $sort_by,
+            'orders' => $orders,
+            'event' => $event,
+            'sort_by' => $sort_by,
             'sort_order' => $sort_order,
-            'q'          => $searchQuery ? $searchQuery : '',
+            'q' => $searchQuery ? $searchQuery : '',
         ];
 
         return view('ManageEvent.Orders', $data);
@@ -73,7 +73,7 @@ class EventOrdersController extends MyBaseController
     /**
      * Shows  'Manage Order' modal
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return mixed
      */
@@ -86,7 +86,7 @@ class EventOrdersController extends MyBaseController
 
         $data = [
             'order' => $order,
-            'orderService' => $orderService
+            'orderService' => $orderService,
         ];
 
         return view('ManageEvent.Modals.ManageOrder', $data);
@@ -95,7 +95,7 @@ class EventOrdersController extends MyBaseController
     /**
      * Shows 'Edit Order' modal
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return mixed
      */
@@ -104,10 +104,10 @@ class EventOrdersController extends MyBaseController
         $order = Order::scope()->find($order_id);
 
         $data = [
-            'order'     => $order,
-            'event'     => $order->event(),
+            'order' => $order,
+            'event' => $order->event(),
             'attendees' => $order->attendees()->withoutCancelled()->get(),
-            'modal_id'  => $request->get('modal_id'),
+            'modal_id' => $request->get('modal_id'),
         ];
 
         return view('ManageEvent.Modals.EditOrder', $data);
@@ -116,7 +116,7 @@ class EventOrdersController extends MyBaseController
     /**
      * Shows 'Cancel Order' modal
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return mixed
      */
@@ -125,10 +125,10 @@ class EventOrdersController extends MyBaseController
         $order = Order::scope()->find($order_id);
 
         $data = [
-            'order'     => $order,
-            'event'     => $order->event(),
+            'order' => $order,
+            'event' => $order->event(),
             'attendees' => $order->attendees()->withoutCancelled()->get(),
-            'modal_id'  => $request->get('modal_id'),
+            'modal_id' => $request->get('modal_id'),
         ];
 
         return view('ManageEvent.Modals.CancelOrder', $data);
@@ -138,7 +138,6 @@ class EventOrdersController extends MyBaseController
      * Resend an entire order
      *
      * @param $order_id
-     *
      * @return \Illuminate\Http\JsonResponse
      */
     public function resendOrder($order_id)
@@ -149,7 +148,7 @@ class EventOrdersController extends MyBaseController
         $this->dispatch(new SendOrderConfirmationJob($order, $orderService));
 
         return response()->json([
-            'status'      => 'success',
+            'status' => 'success',
             'redirectUrl' => '',
         ]);
     }
@@ -157,7 +156,7 @@ class EventOrdersController extends MyBaseController
     /**
      * Cancels an order
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return mixed
      */
@@ -173,7 +172,7 @@ class EventOrdersController extends MyBaseController
 
         if ($validator->fails()) {
             return response()->json([
-                'status'   => 'error',
+                'status' => 'error',
                 'messages' => $validator->messages()->toArray(),
             ]);
         }
@@ -186,20 +185,21 @@ class EventOrdersController extends MyBaseController
 
         $order->update();
 
-
-        Session::flash('message', trans("Controllers.the_order_has_been_updated"));
+        Session::flash('message', trans('Controllers.the_order_has_been_updated'));
 
         return response()->json([
-            'status'      => 'success',
+            'status' => 'success',
             'redirectUrl' => '',
         ]);
     }
 
     /**
      * Cancels attendees in an order
-     * @param Request $request
+     *
+     * @param  Request  $request
      * @param $order_id
      * @return \Illuminate\Http\JsonResponse
+     *
      * @throws \Exception
      */
     public function postCancelOrder(Request $request, $order_id)
@@ -212,7 +212,7 @@ class EventOrdersController extends MyBaseController
 
         if ($validator->fails()) {
             return response()->json([
-                'status'   => 'error',
+                'status' => 'error',
                 'messages' => $validator->messages()->toArray(),
             ]);
         }
@@ -227,14 +227,15 @@ class EventOrdersController extends MyBaseController
             OrderCancellation::make($order, $attendees)->cancel();
         } catch (OrderRefundException $e) {
             Log::error($e);
+
             return response()->json([
-                'status'  => 'error',
+                'status' => 'error',
                 'message' => $e->getMessage(),
             ]);
         }
 
         // Done
-        Session::flash('message', trans("Controllers.successfully_refunded_and_cancelled"));
+        Session::flash('message', trans('Controllers.successfully_refunded_and_cancelled'));
 
         return response()->json([
             'status' => 'success',
@@ -246,19 +247,20 @@ class EventOrdersController extends MyBaseController
      * Exports order to popular file types
      *
      * @param $event_id
-     * @param string $export_as Accepted: xls, xlsx, csv, pdf, html
+     * @param  string  $export_as Accepted: xls, xlsx, csv, pdf, html
      */
     public function showExportOrders($event_id, $export_as = 'xls')
     {
         $event = Event::scope()->findOrFail($event_id);
         $date = date('d-m-Y-g.i.a');
+
         return (new OrdersExport($event->id))->download("orders-as-of-{$date}.{$export_as}");
     }
 
     /**
      * shows 'Message Order Creator' modal
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return mixed
      */
@@ -277,7 +279,7 @@ class EventOrdersController extends MyBaseController
     /**
      * Sends message to order creator
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return mixed
      */
@@ -292,7 +294,7 @@ class EventOrdersController extends MyBaseController
 
         if ($validator->fails()) {
             return response()->json([
-                'status'   => 'error',
+                'status' => 'error',
                 'messages' => $validator->messages()->toArray(),
             ]);
         }
@@ -300,10 +302,10 @@ class EventOrdersController extends MyBaseController
         $order = Order::scope()->findOrFail($order_id);
 
         $data = [
-            'order'           => $order,
+            'order' => $order,
             'message_content' => $request->get('message'),
-            'subject'         => $request->get('subject'),
-            'event'           => $order->event
+            'subject' => $request->get('subject'),
+            'event' => $order->event,
         ];
 
         Mail::send(Lang::locale().'.Emails.messageReceived', $data, function ($message) use ($order, $data) {
@@ -319,20 +321,20 @@ class EventOrdersController extends MyBaseController
                 $message->to($order->event->organiser->email)
                     ->from(config('attendize.outgoing_email_noreply'), $order->event->organiser->name)
                     ->replyTo($order->event->organiser->email, $order->event->organiser->name)
-                    ->subject($data['subject'] . trans("Email.organiser_copy"));
+                    ->subject($data['subject'].trans('Email.organiser_copy'));
             });
         }
 
         return response()->json([
-            'status'  => 'success',
-            'message' => trans("Controllers.message_successfully_sent"),
+            'status' => 'success',
+            'message' => trans('Controllers.message_successfully_sent'),
         ]);
     }
 
     /**
      * Mark an order as payment received
      *
-     * @param Request $request
+     * @param  Request  $request
      * @param $order_id
      * @return \Illuminate\Http\JsonResponse
      */
@@ -345,7 +347,7 @@ class EventOrdersController extends MyBaseController
 
         $order->save();
 
-        session()->flash('message', trans("Controllers.order_payment_status_successfully_updated"));
+        session()->flash('message', trans('Controllers.order_payment_status_successfully_updated'));
 
         return response()->json([
             'status' => 'success',

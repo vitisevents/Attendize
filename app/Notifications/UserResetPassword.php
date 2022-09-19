@@ -3,9 +3,8 @@
 namespace App\Notifications;
 
 use Illuminate\Bus\Queueable;
-use Illuminate\Notifications\Notification;
-use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Notifications\Messages\MailMessage;
+use Illuminate\Notifications\Notification;
 
 class UserResetPassword extends Notification
 {
@@ -15,6 +14,7 @@ class UserResetPassword extends Notification
 
     /**
      * UserResetPassword constructor.
+     *
      * @param $token
      */
     public function __construct($token)
@@ -41,11 +41,10 @@ class UserResetPassword extends Notification
      */
     public function toMail($notifiable)
     {
-
         $mailMessage = new MailMessage();
         $mailMessage->view('Emails.Auth.Reminder', ['token' => $this->token]);
 
-        return ($mailMessage)
+        return $mailMessage
                     ->line('The introduction to the notification.')
                     ->action('Notification Action', url('/'))
                     ->line('Thank you for using our application!');
