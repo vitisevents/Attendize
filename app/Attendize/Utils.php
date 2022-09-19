@@ -75,28 +75,27 @@ class Utils
 
     public static function isDownForMaintenance()
     {
-        return file_exists(storage_path() . '/framework/down');
+        return file_exists(storage_path().'/framework/down');
     }
 
     /**
      * Check if a user has admin access to events etc.
      *
      * @todo - This is a temp fix until user roles etc. are implemented
+     *
      * @param $object
      * @return bool
      */
     public static function userOwns($object)
     {
-        if (!Auth::check()) {
+        if (! Auth::check()) {
             return false;
         }
 
         try {
-
             if (Auth::user()->account_id === $object->account_id) {
                 return true;
             }
-
         } catch (Exception $e) {
             return false;
         }
@@ -166,6 +165,7 @@ class Utils
         if (preg_match('/(\d+\.?\d+\.?\d+)/', $string, $matches) === 1) {
             return $matches[0];
         }
+
         return '';
     }
 }
